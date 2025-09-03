@@ -3,6 +3,7 @@
         "*.csv": "csv",
         "uefi.h": "c",
         "uefibasetype.h": "c",
-        "uefilib.h": "c"
+        "uefilib.h": "c",
+        "base.h": "c"
     }
 }
