@@ -1,12 +1,14 @@
 # for CLion
 
 cmake_minimum_required(VERSION 4.0)
-project(my_mikanos C)
+project(my_mikanos C CXX)
 
 set(CMAKE_C_STANDARD 11)
 
 add_executable(my_mikanos
-        MikanLoaderPkg/Main.c)
+        MikanLoaderPkg/Main.c
+        kernel/main.cpp
+)
 
 target_include_directories(my_mikanos PRIVATE
         $ENV{HOME}/edk2/MdePkg/Include
