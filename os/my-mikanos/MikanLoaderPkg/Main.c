@@ -179,6 +179,14 @@ const CHAR16* GetPixelFormatUnicode(EFI_GRAPHICS_PIXEL_FORMAT fmt)
     }
 }
 
+void Halt()
+{
+    while (1)
+    {
+        __asm__("hlt");
+    }
+}
+
 EFI_STATUS EFIAPI UefiMain(
     EFI_HANDLE image_handle,
     EFI_SYSTEM_TABLE* system_table
@@ -234,37 +242,42 @@ EFI_STATUS EFIAPI UefiMain(
     UINTN kernel_file_size = file_info->FileSize;
 
     EFI_PHYSICAL_ADDRESS kernel_base_addr = 0x100000;
-    gBS->AllocatePages(AllocateAddress, EfiLoaderData, (kernel_file_size + 0xfff) / 0x1000, &kernel_base_addr);
+    EFI_STATUS status = gBS->AllocatePages(AllocateAddress, EfiLoaderData, (kernel_file_size + 0xfff) / 0x1000, &kernel_base_addr);
+    if (EFI_ERROR(status))
+    {
+        Print(L"failed to allocate pages for kernel: %r\n", status);
+        Halt();
+    }
     kernel_file->Read(kernel_file, &kernel_file_size, (VOID*)kernel_base_addr);
     Print(L"Kernel: 0x%0lx (%lu bytes)\n", kernel_base_addr, kernel_file_size);
 
 
     UINT64 entry_addr = *(UINT64*)(kernel_base_addr + 24);
-    typedef void EntryPointType(void);
+    typedef void EntryPointType(UINT64, UINT64);
     EntryPointType* entry_point = (EntryPointType*)entry_addr;
     Print(L"Kernel Entry Point: 0x%0lx\n", entry_point);
 
-    EFI_STATUS status = gBS->ExitBootServices(image_handle, memmap.map_key);
+    status = gBS->ExitBootServices(image_handle, memmap.map_key);
     if (EFI_ERROR(status))
     {
         status = GetMemoryMap(&memmap);
         if (EFI_ERROR(status))
         {
             Print(L"failed to get memory map: %r\n", status);
-            while (1);
+            Halt();
         }
 
         status = gBS->ExitBootServices(image_handle, memmap.map_key);
         if (EFI_ERROR(status))
         {
             Print(L"could not exit boot services: %r\n", status);
-            while (1);
+            Halt();
         }
     }
-    entry_point();
+    entry_point(gop->Mode->FrameBufferBase, gop->Mode->FrameBufferSize);
 
     Print(L"All done.");
 
-    while (1);
+    Halt();
     return EFI_SUCCESS;
 }
