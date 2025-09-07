@@ -242,13 +242,11 @@ EFI_STATUS EFIAPI UefiMain(
     UINT64 entry_addr = *(UINT64*)(kernel_base_addr + 24);
     typedef void EntryPointType(void);
     EntryPointType* entry_point = (EntryPointType*)entry_addr;
-    Print(L"Kernel Entry Point: 0x%0lx", entry_point);
+    Print(L"Kernel Entry Point: 0x%0lx\n", entry_point);
 
-    Print(L"Exiting boot services...\n");
     EFI_STATUS status = gBS->ExitBootServices(image_handle, memmap.map_key);
     if (EFI_ERROR(status))
     {
-        Print(L"could not exit boot services: %r\n", status);
         status = GetMemoryMap(&memmap);
         if (EFI_ERROR(status))
         {
@@ -256,7 +254,6 @@ EFI_STATUS EFIAPI UefiMain(
             while (1);
         }
 
-        Print(L"got memory map, retrying ExitBootServices...\n");
         status = gBS->ExitBootServices(image_handle, memmap.map_key);
         if (EFI_ERROR(status))
         {

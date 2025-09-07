@@ -1,7 +1,7 @@
 #!/bin/sh
 
 if [ $# -lt 1 ]; then
-    echo "Usage: $0 <.efi file>"
+    echo "Usage: $0 <.efi file> [<file to copy to root of disk image>]"
     exit 1
 fi
 
