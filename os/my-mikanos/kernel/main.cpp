@@ -1,3 +1,6 @@
+#include <cstdint>
+#include <cstddef>
+
 #include "frame_buffer_config.h"
 
 struct PixelColor

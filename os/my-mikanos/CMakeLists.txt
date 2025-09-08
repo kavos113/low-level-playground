@@ -9,6 +9,7 @@ add_executable(my_mikanos
         MikanLoaderPkg/Main.c
         kernel/main.cpp
         kernel/frame_buffer_config.h
+        kernel/elf.h
 )
 
 target_include_directories(my_mikanos PRIVATE
