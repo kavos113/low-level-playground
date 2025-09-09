@@ -1,5 +1,6 @@
 TARGET = kernel.elf
 OBJS = main.o pixel_writer.o font.o
+MORE_OBJS = hankaku.o
 
 CXXFLAGS += -O2 -Wall -g --target=x86_64-elf -ffreestanding -fno-exceptions -fno-rtti -mno-red-zone -std=c++17
 LDFLAGS += --entry KernelMain -z norelro --image-base 0x100000 --static
@@ -24,7 +25,7 @@ clean:
 	rm -f $(TARGET) $(OBJS)
 
 $(TARGET): $(OBJS) Makefile
-	$(LD) $(LDFLAGS) -o $@ $(OBJS)
+	$(LD) $(LDFLAGS) -o $@ $(OBJS) $(MORE_OBJS)
 
 %.o: %.cpp Makefile
 	$(CXX) $(CXXFLAGS) -c $< -o $@

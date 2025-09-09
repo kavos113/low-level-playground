@@ -47,7 +47,7 @@ extern "C" void KernelMain(const FrameBufferConfig *config)
     }
 
     write_char(*pixel_writer, 50, 50, 'A', {0, 0, 0});
-    write_char(*pixel_writer, 58, 50, 'A', {0, 0, 0});
+    write_char(*pixel_writer, 58, 50, 'Q', {0, 0, 0});
 
     while (true)
     {
