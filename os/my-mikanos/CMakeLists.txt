@@ -10,6 +10,10 @@ add_executable(my_mikanos
         kernel/main.cpp
         kernel/frame_buffer_config.h
         kernel/elf.h
+        kernel/pixel_writer.cpp
+        kernel/pixel_writer.h
+        kernel/font.cpp
+        kernel/font.h
 )
 
 target_include_directories(my_mikanos PRIVATE
