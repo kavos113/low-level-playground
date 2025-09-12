@@ -14,6 +14,8 @@ add_executable(my_mikanos
         kernel/pixel_writer.h
         kernel/font.cpp
         kernel/font.h
+        kernel/console.cpp
+        kernel/console.h
 )
 
 target_include_directories(my_mikanos PRIVATE

@@ -1,5 +1,5 @@
 TARGET = kernel.elf
-OBJS = main.o pixel_writer.o font.o
+OBJS = main.o pixel_writer.o font.o console.o
 MORE_OBJS = hankaku.o
 
 CXXFLAGS += -O2 -Wall -g --target=x86_64-elf -ffreestanding -fno-exceptions -fno-rtti -mno-red-zone -std=c++17

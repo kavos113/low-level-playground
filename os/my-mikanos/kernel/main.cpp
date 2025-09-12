@@ -1,6 +1,7 @@
 #include <cstdint>
 #include <cstddef>
 
+#include "console.h"
 #include "font.h"
 #include "frame_buffer_config.h"
 #include "pixel_writer.h"
@@ -38,15 +39,11 @@ extern "C" void KernelMain(const FrameBufferConfig *config)
         }
     }
 
-    for (int x = 100; x < 300; ++x)
+    Console console(pixel_writer, {255, 255, 255}, {0, 0, 0});
+    for (int i = 0; i < 28; ++i)
     {
-        for (int y = 100; y < 200; ++y)
-        {
-            pixel_writer->write(x, y, {0, 255, 0});
-        }
+        console.put_string("hello");
     }
-
-   write_string(*pixel_writer, 50, 50, "Hello, World!", {0, 0, 255});
 
     while (true)
     {
