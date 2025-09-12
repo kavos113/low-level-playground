@@ -1,7 +1,8 @@
 TARGET = kernel.elf
-OBJS = main.o pixel_writer.o font.o console.o
+OBJS = main.o pixel_writer.o font.o console.o newlib_support.o
 MORE_OBJS = hankaku.o
 
+CFLAGS += -O2 -Wall -g --target=x86_64-elf -ffreestanding -mno-red-zone
 CXXFLAGS += -O2 -Wall -g --target=x86_64-elf -ffreestanding -fno-exceptions -fno-rtti -mno-red-zone -std=c++17
 LDFLAGS += --entry KernelMain -z norelro --image-base 0x100000 --static
 
@@ -10,10 +11,12 @@ LDFLAGS += --entry KernelMain -z norelro --image-base 0x100000 --static
 DEVENV_BASE = $(HOME)/osbook/devenv/x86_64-elf
 EDK_BASE = $(HOME)/edk2
 
+CFLAGS += -I$(DEVENV_BASE)/include/c++/v1 -I$(DEVENV_BASE)/include -I$(DEVENV_BASE)/include/freetype2 -I$(EDK_BASE)/MdePkg/Include -I$(EDK_BASE)/MdePkg/Include/X64
 CXXFLAGS += -I$(DEVENV_BASE)/include/c++/v1 -I$(DEVENV_BASE)/include -I$(DEVENV_BASE)/include/freetype2 -I$(EDK_BASE)/MdePkg/Include -I$(EDK_BASE)/MdePkg/Include/X64
 CXXFLAGS += -nostdlibinc -D__ELF__ -D_LDBL_EQ_DBL -D_GNU_SOURCE -D_POSIX_TIMERS -DEFIAPI='__attribute__((ms_abi))'
 LDFLAGS += -L$(DEVENV_BASE)/lib
 
+C = $(CUSTOM_CLANG_DIR)clang
 CXX = $(CUSTOM_CLANG_DIR)clang++
 LD = $(CUSTOM_CLANG_DIR)ld.lld
 
@@ -25,7 +28,10 @@ clean:
 	rm -f $(TARGET) $(OBJS)
 
 $(TARGET): $(OBJS) Makefile
-	$(LD) $(LDFLAGS) -o $@ $(OBJS) $(MORE_OBJS)
+	$(LD) $(LDFLAGS) -o $@ $(OBJS) $(MORE_OBJS) -lc
 
 %.o: %.cpp Makefile
 	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+%.o: %.c Makefile
+	$(C) $(CFLAGS) -c $< -o $@

@@ -1,5 +1,6 @@
 #include <cstdint>
 #include <cstddef>
+#include <cstdio>
 
 #include "console.h"
 #include "font.h"
@@ -39,10 +40,12 @@ extern "C" void KernelMain(const FrameBufferConfig *config)
         }
     }
 
+    char buf[128];
     Console console(pixel_writer, {255, 255, 255}, {0, 0, 0});
     for (int i = 0; i < 28; ++i)
     {
-        console.put_string("hello");
+        sprintf(buf, "line %d\n", i);
+        console.put_string(buf);
     }
 
     while (true)

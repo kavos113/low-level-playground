@@ -1,7 +1,7 @@
 #include "console.h"
 
-#include "font.h"
 #include <cstring>
+#include "font.h"
 
 Console::Console(PixelWriter* writer, const PixelColor& fg_color, const PixelColor& bg_color)
     : m_writer(writer), m_fgColor(fg_color), m_bgColor(bg_color), m_buffer{}, m_cursorRow(0), m_cursorColumn(0)

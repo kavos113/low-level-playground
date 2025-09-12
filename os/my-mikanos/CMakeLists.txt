@@ -16,6 +16,7 @@ add_executable(my_mikanos
         kernel/font.h
         kernel/console.cpp
         kernel/console.h
+        kernel/newlib_support.c
 )
 
 target_include_directories(my_mikanos PRIVATE
