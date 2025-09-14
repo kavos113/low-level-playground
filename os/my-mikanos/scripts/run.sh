@@ -9,7 +9,6 @@ if build; then
     echo "---------------"
     echo "Build succeeded."
     echo "---------------"
-  "$SCRIPT_DIR"/qemu.sh Build/MikanLoaderX64/DEBUG_CLANG38/X64/Loader.efi "$SCRIPT_DIR"/../kernel/kernel.elf
 else
     echo "---------------"
     echo "Build failed."
@@ -17,3 +16,8 @@ else
     exit 1
 fi
 
+if [ $1 == "qemu" ]; then
+    "$SCRIPT_DIR"/qemu.sh Build/MikanLoaderX64/DEBUG_CLANG38/X64/Loader.efi "$SCRIPT_DIR"/../kernel/kernel.elf
+elif [ $1 != "" ]; then
+    "$SCRIPT_DIR"/usb.sh usbm $1 Build/MikanLoaderX64/DEBUG_CLANG38/X64/Loader.efi "$SCRIPT_DIR"/../kernel/kernel.elf
+fi

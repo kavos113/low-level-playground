@@ -142,15 +142,20 @@ EFI_STATUS OpenGOP(EFI_HANDLE image_handle, EFI_GRAPHICS_OUTPUT_PROTOCOL** gop)
 {
     UINTN num_gop_handles = 0;
     EFI_HANDLE* gop_handles = NULL;
-    gBS->LocateHandleBuffer(
+    EFI_STATUS status = gBS->LocateHandleBuffer(
         ByProtocol,
         &gEfiGraphicsOutputProtocolGuid,
         NULL,
         &num_gop_handles,
         &gop_handles
     );
+    if (EFI_ERROR(status))
+    {
+        Print(L"Failed to locate gop handles: %r\n", status);
+        return status;
+    }
 
-    gBS->OpenProtocol(
+    status = gBS->OpenProtocol(
         gop_handles[0],
         &gEfiGraphicsOutputProtocolGuid,
         (VOID**)gop,
@@ -158,6 +163,14 @@ EFI_STATUS OpenGOP(EFI_HANDLE image_handle, EFI_GRAPHICS_OUTPUT_PROTOCOL** gop)
         NULL,
         EFI_OPEN_PROTOCOL_BY_HANDLE_PROTOCOL
     );
+    if (EFI_ERROR(status))
+    {
+        Print(L"Failed to locate gop handles: %r\n", status);
+        return status;
+    }
+
+    UINTN size_of_info;
+    EFI_GRAPHICS_OUTPUT_MODE_INFORMATION *info;
 
     FreePool(gop_handles);
 
