@@ -13,7 +13,7 @@ MNT_FILE=$4
 sudo mkdir -p $MNT_DIR
 sudo mount -t drvfs $MNT_DRIVE $MNT_DIR
 sudo mkdir -p $MNT_DIR/EFI/BOOT
-sudo cp $EFI_FILE $MNT_DIR/EFI/BOOT
+sudo cp $EFI_FILE $MNT_DIR/EFI/BOOT/BOOTX64.EFI
 if [ "$MNT_FILE" != "" ]; then
     sudo cp $MNT_FILE $MNT_DIR
 fi
