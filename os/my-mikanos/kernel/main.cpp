@@ -6,6 +6,7 @@
 #include "console.h"
 #include "font.h"
 #include "frame_buffer_config.h"
+#include "pci.h"
 #include "pixel_writer.h"
 
 void *operator new(size_t size, void *buf)
@@ -104,6 +105,20 @@ extern "C" void KernelMain(const FrameBufferConfig *config)
                 pixel_writer->write(200 + x, 200 + y, {255, 255, 255});
             }
         }
+    }
+
+    auto err = pci::scan_all_bus();
+    printk("scan_all_bus is finished with: %s\n", err.name());
+
+    for (int i = 0; i < pci::num_device; ++i)
+    {
+        const auto& device = pci::devices[i];
+
+        auto vendor_id = pci::read_vendor_id(device.bus, device.device, device.function);
+        auto class_code = pci::read_class_code(device.bus, device.device, device.function);
+
+        printk("%d.%d.%d: vendor %04x, class %08x, head %02x\n",
+            device.bus, device.device, device.function, vendor_id, class_code, device.header_type);
     }
 
     while (true)

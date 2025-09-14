@@ -17,6 +17,10 @@ add_executable(my_mikanos
         kernel/console.cpp
         kernel/console.h
         kernel/newlib_support.c
+        kernel/pci.cpp
+        kernel/pci.h
+        kernel/io.h
+        kernel/error.h
 )
 
 target_include_directories(my_mikanos PRIVATE
