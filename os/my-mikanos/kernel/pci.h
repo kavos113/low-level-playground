@@ -25,8 +25,8 @@ struct Device
     uint8_t bus, device, function, header_type;
 };
 
-std::array<Device, 32> devices;
-int num_device;
+inline std::array<Device, 32> devices;
+inline int num_device;
 
 Error scan_all_bus();
 }

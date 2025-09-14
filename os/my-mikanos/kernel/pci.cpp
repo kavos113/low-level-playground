@@ -178,5 +178,7 @@ Error scan_all_bus()
             return err;
         }
     }
+
+    return Error::Code::SUCCESS;
 }
 }

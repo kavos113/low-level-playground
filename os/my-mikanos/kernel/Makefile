@@ -1,5 +1,5 @@
 TARGET = kernel.elf
-OBJS = main.o pixel_writer.o font.o console.o newlib_support.o
+OBJS = main.o pixel_writer.o font.o console.o newlib_support.o io.o pci.o
 MORE_OBJS = hankaku.o
 
 CFLAGS += -O2 -Wall -g --target=x86_64-elf -ffreestanding -mno-red-zone
@@ -35,3 +35,6 @@ $(TARGET): $(OBJS) Makefile
 
 %.o: %.c Makefile
 	$(C) $(CFLAGS) -c $< -o $@
+
+%.o: %.asm Makefile
+	nasm -f elf64 -o $@ $<
