@@ -41,5 +41,14 @@ class BGRPixelWriter : public PixelWriter
     void write(int x, int y, const PixelColor& c) override;
 };
 
+template <typename T>
+struct Vector2D
+{
+    T x, y;
+};
+
+void fill_rect(PixelWriter& writer, const Vector2D<int>& pos, const Vector2D<int>& size, const PixelColor& color);
+void draw_rect(PixelWriter& writer, const Vector2D<int>& pos, const Vector2D<int>& size, const PixelColor& color);
+
 
 #endif //KERNEL_PIXEL_WRITER_H

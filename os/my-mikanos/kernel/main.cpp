@@ -17,6 +17,38 @@ void operator delete(void* obj) noexcept
 {
 }
 
+constexpr PixelColor kWindowBgColor = {111, 204, 247};
+constexpr PixelColor kWindowFgColor = {245, 245, 245};
+
+constexpr int kMouseCursorWidth = 15;
+constexpr int kMouseCursorHeight = 24;
+constexpr char mouse_cursor_shape[kMouseCursorHeight][kMouseCursorWidth + 1] = {
+    "@              ",
+    "@@             ",
+    "@.@            ",
+    "@..@           ",
+    "@...@          ",
+    "@....@         ",
+    "@.....@        ",
+    "@......@       ",
+    "@.......@      ",
+    "@........@     ",
+    "@.........@    ",
+    "@..........@   ",
+    "@...........@  ",
+    "@............@ ",
+    "@......@@@@@@@@",
+    "@......@       ",
+    "@....@@.@      ",
+    "@...@ @.@      ",
+    "@..@   @.@     ",
+    "@.@    @.@     ",
+    "@@      @.@    ",
+    "@       @.@    ",
+    "         @.@   ",
+    "         @@@   ",
+  };
+
 char pixel_writer_buf[sizeof(RGBPixelWriter)];
 PixelWriter *pixel_writer;
 
@@ -48,19 +80,30 @@ extern "C" void KernelMain(const FrameBufferConfig *config)
         pixel_writer = new(pixel_writer_buf) BGRPixelWriter(config);
     }
 
-    console = new(console_buf) Console(pixel_writer, {255, 255, 255}, {0, 0, 0});
+    int frame_width = static_cast<int>(config->horizontal_resolution);
+    int frame_height = static_cast<int>(config->vertical_resolution);
 
-    for (int x = 0; x < config->horizontal_resolution; ++x)
+    console = new(console_buf) Console(pixel_writer, kWindowFgColor, kWindowBgColor);
+
+    fill_rect(*pixel_writer, {0, 0}, {frame_width, frame_height}, kWindowBgColor);
+    fill_rect(*pixel_writer, {0, frame_height - 50}, {frame_width, 50}, kWindowFgColor);
+    fill_rect(*pixel_writer, {0, frame_height - 50}, {frame_width / 5, 50}, {155, 155, 155});
+
+    printk("Hello, OS!");
+
+    for (int y = 0; y < kMouseCursorHeight; ++y)
     {
-        for (int y = 0; y < config->vertical_resolution; ++y)
+        for (int x = 0; x < kMouseCursorWidth; ++x)
         {
-            pixel_writer->write(x, y, {255, 255, 255});
+            if (mouse_cursor_shape[y][x] == '@')
+            {
+                pixel_writer->write(200 + x, 200 + y, {0, 0, 0});
+            }
+            else if (mouse_cursor_shape[y][x] == '.')
+            {
+                pixel_writer->write(200 + x, 200 + y, {255, 255, 255});
+            }
         }
-    }
-
-    for (int i = 0; i < 28; ++i)
-    {
-        printk("printk: %d\n", i);
     }
 
     while (true)
