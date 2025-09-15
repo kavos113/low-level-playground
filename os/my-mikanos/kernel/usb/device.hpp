@@ -7,17 +7,16 @@
 #pragma once
 
 #include <array>
-#include <vector>
 
 #include "error.hpp"
-#include "usb/arraymap.hpp"
-#include "usb/classdriver/base.hpp"
-#include "usb/descriptor.hpp"
-#include "usb/endpoint.hpp"
 #include "usb/setupdata.hpp"
+#include "usb/endpoint.hpp"
+#include "usb/arraymap.hpp"
 
 namespace usb
 {
+class ClassDriver;
+
 class Device
 {
 public:
@@ -30,8 +29,8 @@ public:
         EndpointID ep_id, SetupData setup_data,
         const void* buf, int len, ClassDriver* issuer
     );
-    virtual Error NormalIn(EndpointID ep_id, void* buf, int len);
-    virtual Error NormalOut(EndpointID ep_id, const void* buf, int len);
+    virtual Error InterruptIn(EndpointID ep_id, void* buf, int len);
+    virtual Error InterruptOut(EndpointID ep_id, void* buf, int len);
 
     Error StartInitialize();
 
@@ -40,9 +39,14 @@ public:
         return is_initialized_;
     }
 
-    auto& EndpointConfigs() const
+    EndpointConfig* EndpointConfigs()
     {
-        return ep_configs_;
+        return ep_configs_.data();
+    }
+
+    int NumEndpointConfigs()
+    {
+        return num_ep_configs_;
     }
 
     Error OnEndpointsConfigured();
@@ -52,23 +56,22 @@ public:
         return buf_.data();
     }
 
-    const DeviceDescriptor& DeviceDesc() const
-    {
-        return device_desc_;
-    }
-
 protected:
     Error OnControlCompleted(
         EndpointID ep_id, SetupData setup_data,
         const void* buf, int len
     );
-    Error OnNormalCompleted(EndpointID ep_id, const void* buf, int len);
+    Error OnInterruptCompleted(EndpointID ep_id, const void* buf, int len);
 
 private:
-    std::vector<ClassDriver*> class_drivers_{};
+    /** @brief エンドポイントに割り当て済みのクラスドライバ．
+     *
+     * 添字はエンドポイント番号（0 - 15）．
+     * 添字 0 はどのクラスドライバからも使われないため，常に未使用．
+     */
+    std::array<ClassDriver*, 16> class_drivers_{};
 
     std::array<uint8_t, 256> buf_{};
-    DeviceDescriptor device_desc_;
 
     // following fields are used during initialization
     uint8_t num_configurations_;
@@ -80,7 +83,8 @@ private:
 
     bool is_initialized_ = false;
     int initialize_phase_ = 0;
-    std::vector<EndpointConfig> ep_configs_{};
+    std::array<EndpointConfig, 16> ep_configs_;
+    int num_ep_configs_;
     Error InitializePhase1(const uint8_t* buf, int len);
     Error InitializePhase2(const uint8_t* buf, int len);
     Error InitializePhase3(uint8_t config_value);

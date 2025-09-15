@@ -6,7 +6,6 @@
 
 #pragma once
 
-#include <memory>
 #include "error.hpp"
 #include "usb/xhci/registers.hpp"
 #include "usb/xhci/context.hpp"
@@ -89,8 +88,4 @@ Error ConfigureEndpoints(Controller & xhc, Device & dev);
    * @return イベントを正常に処理できたら Error::kSuccess
    */
 Error ProcessEvent(Controller& xhc);
-
-extern Controller* controller;
-void Initialize();
-void ProcessEvents();
 }

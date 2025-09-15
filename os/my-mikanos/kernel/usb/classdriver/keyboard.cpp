@@ -1,7 +1,6 @@
 #include "usb/classdriver/keyboard.hpp"
 
 #include <algorithm>
-#include <bitset>
 #include "usb/memory.hpp"
 #include "usb/device.hpp"
 
@@ -14,20 +13,19 @@ HIDKeyboardDriver::HIDKeyboardDriver(Device* dev, int interface_index)
 
 Error HIDKeyboardDriver::OnDataReceived()
 {
-    std::bitset < 256 > prev, current;
     for (int i = 2; i < 8; ++i)
     {
-        prev.set(PreviousBuffer()[i], true);
-        current.set(Buffer()[i], true);
-    }
-    const auto changed = prev ^ current;
-    const auto pressed = changed & current;
-    for (int key = 1; key < 256; ++key)
-    {
-        if (changed.test(key))
+        const uint8_t key = Buffer()[i];
+        if (key == 0)
         {
-            NotifyKeyPush(Buffer()[0], key, pressed.test(key));
+            continue;
         }
+        const auto& prev_buf = PreviousBuffer();
+        if (std::find(prev_buf.begin(), prev_buf.end(), key) != prev_buf.end())
+        {
+            continue;
+        }
+        NotifyKeyPush(key);
     }
     return MAKE_ERROR(Error::kSuccess);
 }
@@ -43,7 +41,7 @@ void HIDKeyboardDriver::operator delete(void* ptr) noexcept
 }
 
 void HIDKeyboardDriver::SubscribeKeyPush(
-    std::function<ObserverType> observer
+    std::function < void(uint8_t keycode) > observer
 )
 {
     observers_[num_observers_++] = observer;
@@ -51,11 +49,11 @@ void HIDKeyboardDriver::SubscribeKeyPush(
 
 std::function<HIDKeyboardDriver::ObserverType> HIDKeyboardDriver::default_observer;
 
-void HIDKeyboardDriver::NotifyKeyPush(uint8_t modifier, uint8_t keycode, bool press)
+void HIDKeyboardDriver::NotifyKeyPush(uint8_t keycode)
 {
     for (int i = 0; i < num_observers_; ++i)
     {
-        observers_[i](modifier, keycode, press);
+        observers_[i](keycode);
     }
 }
 }
