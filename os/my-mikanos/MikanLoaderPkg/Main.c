@@ -280,7 +280,7 @@ void CalcLoadAddressRange(Elf64_Ehdr* ehdr, UINT64* first, UINT64* last)
     }
 }
 
-void CopyLoadSegments(Elf64_Ehdr* ehdr)
+void CopyLoadSegments(Elf64_Ehdr* ehdr, UINT64 base_addr)
 {
     Elf64_Phdr* phdr = (Elf64_Phdr*)((UINT64)ehdr + ehdr->e_phoff);
     for (Elf64_Half i = 0; i < ehdr->e_phnum; ++i)
@@ -291,10 +291,10 @@ void CopyLoadSegments(Elf64_Ehdr* ehdr)
         }
 
         UINT64 segm_in_file = (UINT64)ehdr + phdr[i].p_offset;
-        CopyMem((VOID*)phdr[i].p_vaddr, (VOID*)segm_in_file, phdr[i].p_filesz);
+        CopyMem((VOID *)(base_addr + phdr[i].p_offset), (VOID*)segm_in_file, phdr[i].p_filesz);
 
         UINTN remain_bytes = phdr[i].p_memsz - phdr[i].p_filesz;
-        SetMem((VOID*)(phdr[i].p_vaddr + phdr[i].p_filesz), remain_bytes, 0);
+        SetMem((VOID *)(base_addr + phdr[i].p_offset + phdr[i].p_filesz), remain_bytes, 0);
     }
 }
 
@@ -377,21 +377,22 @@ EFI_STATUS EFIAPI UefiMain(
     CalcLoadAddressRange(kernel_ehdr, &kernel_first_addr, &kernel_last_addr);
 
     UINTN num_pages = (kernel_last_addr - kernel_first_addr + 0xfff) / 0x1000;
-    status = gBS->AllocatePages(AllocateAddress, EfiLoaderData, num_pages, &kernel_first_addr);
+
+    EFI_PHYSICAL_ADDRESS kernel_base_addr = 0;
+    status = gBS->AllocatePages(AllocateAnyPages, EfiLoaderCode, num_pages, &kernel_base_addr);
     if (EFI_ERROR(status))
     {
         Print(L"failed to allocate pages: %r\n", status);
-
-        status = gBS->AllocatePages(AllocateAnyPages, EfiLoaderData, num_pages, &kernel_first_addr);
-        if (EFI_ERROR(status))
-        {
-            Print(L"failed to allocate any pages: %r\n", status);
-            Halt();
-        }
+        Halt();
     }
 
-    CopyLoadSegments(kernel_ehdr);
-    Print(L"Kernel: 0x%0lx - 0x%0lx\n", kernel_first_addr, kernel_last_addr);
+    CopyLoadSegments(kernel_ehdr, kernel_base_addr);
+    Print(L"Kernel base: %08lx\n", kernel_base_addr);
+    Print(L"Kernel entry: %08lx\n", kernel_ehdr->e_entry);
+
+    // call kernel entry point
+    UINT64 entry_addr = kernel_base_addr + kernel_ehdr->e_entry;
+    Print(L"Kernel entry address: %08lx\n", entry_addr);
 
     status = gBS->FreePool(kernel_buffer);
     if (EFI_ERROR(status))
@@ -400,8 +401,16 @@ EFI_STATUS EFIAPI UefiMain(
         Halt();
     }
 
-    // call kernel entry point
-    UINT64 entry_addr = *(UINT64*)(kernel_first_addr + 24);
+    EFI_PHYSICAL_ADDRESS kernel_stack_addr;
+    UINTN stack_pages = 64;
+    status = gBS->AllocatePages(AllocateAnyPages, EfiLoaderData, stack_pages, &kernel_stack_addr);
+    if (EFI_ERROR(status))
+    {
+        Print(L"failed to allocate pages for kernel stack: %r\n", status);
+        Halt();
+    }
+    UINT64 kernel_stack_top = kernel_stack_addr + stack_pages * 0x1000;
+    Print(L"Kernel stack address: %08lx - %08lx\n", kernel_stack_addr, kernel_stack_top);
 
     struct FrameBufferConfig config = {
         (UINT8*)gop->Mode->FrameBufferBase,
@@ -429,6 +438,7 @@ EFI_STATUS EFIAPI UefiMain(
     status = gBS->ExitBootServices(image_handle, memmap.map_key);
     if (EFI_ERROR(status))
     {
+        Print(L"ExitBootServices failed: %r\n", status);
         status = GetMemoryMap(&memmap);
         if (EFI_ERROR(status))
         {
@@ -443,7 +453,14 @@ EFI_STATUS EFIAPI UefiMain(
             Halt();
         }
     }
-    entry_point(&config);
+
+    asm volatile(
+        "mov %0, %%rdi\n"
+        "mov %1, %%rsp\n"
+        "call *%2\n"
+        :
+        : "r"(&config), "r"(kernel_stack_top), "r"(entry_point)
+    );
 
     Print(L"All done.");
 
