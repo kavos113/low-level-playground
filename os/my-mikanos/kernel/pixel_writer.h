@@ -48,6 +48,11 @@ template <typename T>
 struct Vector2D
 {
     T x, y;
+
+    Vector2D operator+=(const Vector2D& vec)
+    {
+        return {x + vec.x, y + vec.y};
+    }
 };
 
 void fill_rect(PixelWriter& writer, const Vector2D<int>& pos, const Vector2D<int>& size, const PixelColor& color);

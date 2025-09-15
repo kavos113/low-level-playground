@@ -1,5 +1,8 @@
 TARGET = kernel.elf
-OBJS = main.o pixel_writer.o font.o console.o newlib_support.o io.o pci.o
+OBJS = main.o pixel_writer.o font.o console.o newlib_support.o io.o pci.o mouse.o \
+	usb/memory.o usb/device.o usb/xhci/device.o usb/xhci/devmgr.o usb/xhci/port.o \
+	usb/xhci/registers.o usb/xhci/ring.o usb/xhci/trb.o usb/xhci/xhci.o \
+	usb/classdriver/base.o usb/classdriver/hid.o usb/classdriver/kerboard.o usb/classdriver/mouse.o
 MORE_OBJS = hankaku.o
 
 CFLAGS += -O2 -Wall -g --target=x86_64-elf -ffreestanding -mno-red-zone
@@ -15,6 +18,8 @@ CFLAGS += -I$(DEVENV_BASE)/include/c++/v1 -I$(DEVENV_BASE)/include -I$(DEVENV_BA
 CXXFLAGS += -I$(DEVENV_BASE)/include/c++/v1 -I$(DEVENV_BASE)/include -I$(DEVENV_BASE)/include/freetype2 -I$(EDK_BASE)/MdePkg/Include -I$(EDK_BASE)/MdePkg/Include/X64
 CXXFLAGS += -nostdlibinc -D__ELF__ -D_LDBL_EQ_DBL -D_GNU_SOURCE -D_POSIX_TIMERS -DEFIAPI='__attribute__((ms_abi))'
 LDFLAGS += -L$(DEVENV_BASE)/lib
+
+CXXFLAGS += -I.
 
 C = $(CUSTOM_CLANG_DIR)clang
 CXX = $(CUSTOM_CLANG_DIR)clang++

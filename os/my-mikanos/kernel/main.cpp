@@ -6,8 +6,11 @@
 #include "console.h"
 #include "font.h"
 #include "frame_buffer_config.h"
+#include "mouse.h"
 #include "pci.h"
 #include "pixel_writer.h"
+#include "usb/classdriver/mouse.hpp"
+#include "usb/xhci/xhci.hpp"
 
 void operator delete(void* obj) noexcept
 {
@@ -15,35 +18,6 @@ void operator delete(void* obj) noexcept
 
 constexpr PixelColor kWindowBgColor = {69, 92, 204};
 constexpr PixelColor kWindowFgColor = {245, 245, 245};
-
-constexpr int kMouseCursorWidth = 15;
-constexpr int kMouseCursorHeight = 24;
-constexpr char mouse_cursor_shape[kMouseCursorHeight][kMouseCursorWidth + 1] = {
-    "@              ",
-    "@@             ",
-    "@.@            ",
-    "@..@           ",
-    "@...@          ",
-    "@....@         ",
-    "@.....@        ",
-    "@......@       ",
-    "@.......@      ",
-    "@........@     ",
-    "@.........@    ",
-    "@..........@   ",
-    "@...........@  ",
-    "@............@ ",
-    "@......@@@@@@@@",
-    "@......@       ",
-    "@....@@.@      ",
-    "@...@ @.@      ",
-    "@..@   @.@     ",
-    "@.@    @.@     ",
-    "@@      @.@    ",
-    "@       @.@    ",
-    "         @.@   ",
-    "         @@@   ",
-};
 
 char pixel_writer_buf[sizeof(RGBPixelWriter)];
 PixelWriter* pixel_writer;
@@ -62,6 +36,39 @@ int printk(const char* format, ...)
 
     console->put_string(s);
     return result;
+}
+
+char mouse_cursor_buf[sizeof(MouseCursor)];
+MouseCursor* mouse_cursor;
+
+void mouse_observer(int8_t displacement_x, int8_t displacement_y)
+{
+    mouse_cursor->move_relative({displacement_x, displacement_y});
+}
+
+void switch_ehci_to_xhci(const pci::Device& xhc_dev)
+{
+    bool intel_exc_exist = false;
+
+    for (int i = 0; i < pci::num_device; ++i)
+    {
+        if (pci::devices[i].class_code.match(0x0cu, 0x03u, 0x20u) && pci::read_vendor_id(pci::devices[i]) == 0x8086)
+        {
+            intel_exc_exist = true;
+            break;
+        }
+    }
+
+    if (!intel_exc_exist)
+    {
+        return;
+    }
+
+    uint32_t superspeed_ports = pci::read_config_register(xhc_dev, 0xdc);
+    pci::write_config_register(xhc_dev, 0xd8, superspeed_ports);
+
+    uint32_t echi2xhci_ports = pci::read_config_register(xhc_dev, 0xd4);
+    pci::write_config_register(xhc_dev, 0xd0, echi2xhci_ports);
 }
 
 extern "C" void KernelMain(const FrameBufferConfig* config)
@@ -87,20 +94,7 @@ extern "C" void KernelMain(const FrameBufferConfig* config)
 
     printk("Hello, OS!");
 
-    for (int y = 0; y < kMouseCursorHeight; ++y)
-    {
-        for (int x = 0; x < kMouseCursorWidth; ++x)
-        {
-            if (mouse_cursor_shape[y][x] == '@')
-            {
-                pixel_writer->write(200 + x, 200 + y, {0, 0, 0});
-            }
-            else if (mouse_cursor_shape[y][x] == '.')
-            {
-                pixel_writer->write(200 + x, 200 + y, {255, 255, 255});
-            }
-        }
-    }
+    mouse_cursor = new(mouse_cursor_buf) MouseCursor{pixel_writer, kWindowBgColor, {200, 200}};
 
     auto err = pci::scan_all_bus();
     printk("scan_all_bus is finished with: %s\n", err.name());
@@ -146,6 +140,46 @@ extern "C" void KernelMain(const FrameBufferConfig* config)
 
     uint64_t xhc_mmio_base = xhc_bar & ~static_cast<uint64_t>(0xf);
     printk("xHC mmio_base = %08lx\n", xhc_mmio_base);
+
+    usb::xhci::Controller xhc{xhc_mmio_base};
+
+    if (pci::read_vendor_id(*xhc_dev) == 0x8086)
+    {
+        switch_ehci_to_xhci(*xhc_dev);
+    }
+
+    err = xhc.Initialize();
+    if (err)
+    {
+        printk("failed to initialize xhc: %s\n", err.name());
+    }
+
+    xhc.Run();
+
+    usb::HIDMouseDriver::default_observer = mouse_observer;
+
+    for (int i = 1; i <= xhc.MaxPorts(); ++i)
+    {
+        auto port = xhc.PortAt(i);
+
+        if (port.IsConnected())
+        {
+            if ((err = usb::xhci::ConfigurePort(xhc, port)))
+            {
+                printk("failed to configure port: %s\n", err.name());
+                continue;
+            }
+        }
+    }
+
+    while (true)
+    {
+        err = usb::xhci::ProcessEvent(xhc);
+        if (err)
+        {
+            printk("error while process event: %s\n", err.name());
+        }
+    }
 
     while (true)
     {

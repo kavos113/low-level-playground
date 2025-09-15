@@ -21,6 +21,35 @@ add_executable(my_mikanos
         kernel/pci.h
         kernel/io.h
         kernel/error.h
+        kernel/usb/device.cpp
+        kernel/usb/device.hpp
+        kernel/usb/memory.cpp
+        kernel/usb/memory.hpp
+        kernel/usb/classdriver/base.cpp
+        kernel/usb/classdriver/base.hpp
+        kernel/usb/classdriver/hid.cpp
+        kernel/usb/classdriver/hid.hpp
+        kernel/usb/classdriver/keyboard.cpp
+        kernel/usb/classdriver/keyboard.hpp
+        kernel/usb/classdriver/mouse.cpp
+        kernel/usb/classdriver/mouse.hpp
+        kernel/usb/xhci/device.hpp
+        kernel/usb/xhci/device.cpp
+        kernel/usb/xhci/devmgr.cpp
+        kernel/usb/xhci/devmgr.hpp
+        kernel/usb/xhci/port.cpp
+        kernel/usb/xhci/port.hpp
+        kernel/usb/xhci/registers.cpp
+        kernel/usb/xhci/registers.hpp
+        kernel/usb/xhci/ring.cpp
+        kernel/usb/xhci/ring.hpp
+        kernel/usb/xhci/speed.hpp
+        kernel/usb/xhci/trb.cpp
+        kernel/usb/xhci/trb.hpp
+        kernel/usb/xhci/xhci.cpp
+        kernel/usb/xhci/xhci.hpp
+        kernel/mouse.cpp
+        kernel/mouse.h
 )
 
 target_include_directories(my_mikanos PRIVATE
