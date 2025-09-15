@@ -139,10 +139,15 @@ uint8_t read_header_type(uint8_t bus, uint8_t device, uint8_t function)
     return (read_data() >> 16) & 0xffu;
 }
 
-uint32_t read_class_code(uint8_t bus, uint8_t device, uint8_t function)
+ClassCode read_class_code(uint8_t bus, uint8_t device, uint8_t function)
 {
     write_address(make_config_address(bus, device, function, 0x08));
-    return read_data();
+    auto reg = read_data();
+    ClassCode cc = {};
+    cc.base = (reg >> 24) & 0xffu;
+    cc.sub = (reg >> 16) & 0xffu;
+    cc.interface = (reg >> 8) & 0xffu;
+    return cc;
 }
 
 uint32_t read_bus_numbers(uint8_t bus, uint8_t device, uint8_t function)
@@ -180,5 +185,22 @@ Error scan_all_bus()
     }
 
     return Error::Code::SUCCESS;
+}
+
+uint32_t read_config_register(const Device& dev, uint8_t reg_addr)
+{
+    write_address(make_config_address(dev.bus, dev.device, dev.function, reg_addr));
+    return read_data();
+}
+
+void write_config_register(const Device& dev, uint8_t reg_addr, uint32_t value)
+{
+    write_address(make_config_address(dev.bus, dev.device, dev.function, reg_addr));
+    write_data(value);
+}
+
+uint8_t calc_bar_address(unsigned int bar_index)
+{
+    return 0x10 + 4 * bar_index;
 }
 }

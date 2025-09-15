@@ -116,6 +116,12 @@ extern "C" void KernelMain(const FrameBufferConfig *config)
             device.bus, device.device, device.function, vendor_id, class_code, device.header_type);
     }
 
+    pci::Device *xhc_dev = nullptr;
+    for (int i = 0; i < pci::num_device; ++i)
+    {
+        if (pci::devices[i])
+    }
+
     while (true)
     {
         __asm__("hlt");
