@@ -13,7 +13,7 @@ void operator delete(void* obj) noexcept
 {
 }
 
-constexpr PixelColor kWindowBgColor = {111, 204, 247};
+constexpr PixelColor kWindowBgColor = {69, 92, 204};
 constexpr PixelColor kWindowFgColor = {245, 245, 245};
 
 constexpr int kMouseCursorWidth = 15;

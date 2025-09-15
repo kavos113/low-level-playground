@@ -4,7 +4,7 @@ MORE_OBJS = hankaku.o
 
 CFLAGS += -O2 -Wall -g --target=x86_64-elf -ffreestanding -mno-red-zone
 CXXFLAGS += -O2 -Wall -g --target=x86_64-elf -ffreestanding -fno-exceptions -fno-rtti -mno-red-zone -std=c++17
-LDFLAGS += --entry KernelMain -z norelro --image-base 0x100000 --static
+LDFLAGS += --entry KernelMain -z norelro --image-base 0x200000 --static
 
 #CUSTOM_CLANG_DIR = $(HOME)/clang+llvm-7.1.0-x86_64-linux-gnu-ubuntu-14.04/bin/
 

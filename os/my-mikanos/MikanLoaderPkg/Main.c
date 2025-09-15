@@ -381,13 +381,7 @@ EFI_STATUS EFIAPI UefiMain(
     if (EFI_ERROR(status))
     {
         Print(L"failed to allocate pages: %r\n", status);
-
-        status = gBS->AllocatePages(AllocateAnyPages, EfiLoaderData, num_pages, &kernel_first_addr);
-        if (EFI_ERROR(status))
-        {
-            Print(L"failed to allocate any pages: %r\n", status);
-            Halt();
-        }
+        Halt();
     }
 
     CopyLoadSegments(kernel_ehdr);
