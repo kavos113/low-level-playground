@@ -4,7 +4,6 @@
 
 namespace
 {
-
 using namespace pci;
 
 uint32_t make_config_address(uint8_t bus, uint8_t device, uint8_t function, uint8_t reg_offset)
@@ -158,7 +157,7 @@ uint32_t read_bus_numbers(uint8_t bus, uint8_t device, uint8_t function)
 
 bool is_single_function_device(uint8_t header_type)
 {
-   return (header_type & 0x80u) == 0;
+    return (header_type & 0x80u) == 0;
 }
 
 Error scan_all_bus()

@@ -61,7 +61,7 @@ inline int num_device;
 Error scan_all_bus();
 
 uint8_t calc_bar_address(unsigned int bar_index);
-Error read_bar(Device& device, unsigned int bar_index, uint64_t *out);
+Error read_bar(Device& device, unsigned int bar_index, uint64_t* out);
 }
 
 #endif //KERNEL_PCI_H

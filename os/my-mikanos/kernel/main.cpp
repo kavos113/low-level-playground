@@ -43,15 +43,15 @@ constexpr char mouse_cursor_shape[kMouseCursorHeight][kMouseCursorWidth + 1] = {
     "@       @.@    ",
     "         @.@   ",
     "         @@@   ",
-  };
+};
 
 char pixel_writer_buf[sizeof(RGBPixelWriter)];
-PixelWriter *pixel_writer;
+PixelWriter* pixel_writer;
 
 char console_buf[sizeof(Console)];
-Console *console;
+Console* console;
 
-int printk(const char *format, ...)
+int printk(const char* format, ...)
 {
     va_list ap;
     char s[1024];
@@ -64,7 +64,7 @@ int printk(const char *format, ...)
     return result;
 }
 
-extern "C" void KernelMain(const FrameBufferConfig *config)
+extern "C" void KernelMain(const FrameBufferConfig* config)
 {
     switch (config->pixel_format)
     {
@@ -112,16 +112,18 @@ extern "C" void KernelMain(const FrameBufferConfig *config)
         auto vendor_id = pci::read_vendor_id(device.bus, device.device, device.function);
         auto class_code = pci::read_class_code(device.bus, device.device, device.function);
 
-        printk("%d.%d.%d: vendor %04x, class %08x, head %02x\n",
-            device.bus, device.device, device.function, vendor_id, class_code, device.header_type);
+        printk(
+            "%d.%d.%d: vendor %04x, class %08x, head %02x\n",
+            device.bus, device.device, device.function, vendor_id, class_code, device.header_type
+        );
     }
 
-    pci::Device *xhc_dev = nullptr;
+    pci::Device* xhc_dev = nullptr;
     for (int i = 0; i < pci::num_device; ++i)
     {
         if (pci::devices[i].class_code.match(0x0cu, 0x03u, 0x30u)) // serial bus / usb / xHCI
         {
-           xhc_dev = &pci::devices[i];
+            xhc_dev = &pci::devices[i];
 
             if (pci::read_vendor_id(*xhc_dev) == 0x8086) // intel
             {
