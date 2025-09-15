@@ -119,8 +119,31 @@ extern "C" void KernelMain(const FrameBufferConfig *config)
     pci::Device *xhc_dev = nullptr;
     for (int i = 0; i < pci::num_device; ++i)
     {
-        if (pci::devices[i])
+        if (pci::devices[i].class_code.match(0x0cu, 0x03u, 0x30u)) // serial bus / usb / xHCI
+        {
+           xhc_dev = &pci::devices[i];
+
+            if (pci::read_vendor_id(*xhc_dev) == 0x8086) // intel
+            {
+                break;
+            }
+        }
     }
+
+    if (xhc_dev)
+    {
+        printk("xHC has been found: %d.%d.%d\n", xhc_dev->bus, xhc_dev->device, xhc_dev->function);
+    }
+
+    uint64_t xhc_bar;
+    err = pci::read_bar(*xhc_dev, 0, &xhc_bar);
+    if (err)
+    {
+        printk("read_bar: %s\n", err.name());
+    }
+
+    uint64_t xhc_mmio_base = xhc_bar & ~static_cast<uint64_t>(0xf);
+    printk("xHC mmio_base = %08lx\n", xhc_mmio_base);
 
     while (true)
     {

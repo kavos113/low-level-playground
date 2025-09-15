@@ -47,7 +47,7 @@ ClassCode read_class_code(uint8_t bus, uint8_t device, uint8_t function);
 uint32_t read_bus_numbers(uint8_t bus, uint8_t device, uint8_t function); // for header type 1
 bool is_single_function_device(uint8_t header_type);
 
-inline uint16_t read_class_code(const Device& dev)
+inline uint16_t read_vendor_id(const Device& dev)
 {
     return read_vendor_id(dev.bus, dev.device, dev.function);
 }
@@ -61,6 +61,7 @@ inline int num_device;
 Error scan_all_bus();
 
 uint8_t calc_bar_address(unsigned int bar_index);
+Error read_bar(Device& device, unsigned int bar_index, uint64_t *out);
 }
 
 #endif //KERNEL_PCI_H

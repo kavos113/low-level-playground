@@ -203,4 +203,31 @@ uint8_t calc_bar_address(unsigned int bar_index)
 {
     return 0x10 + 4 * bar_index;
 }
+
+Error read_bar(Device& device, unsigned int bar_index, uint64_t* out)
+{
+    if (bar_index >= 6)
+    {
+        return Error::Code::INDEX_OUT_OF_RANGE;
+    }
+
+    const auto addr = calc_bar_address(bar_index);
+    const auto bar = read_config_register(device, addr);
+
+    if ((bar & 4u) == 0)
+    {
+        *out = bar;
+        return Error::Code::SUCCESS;
+    }
+
+    if (bar_index >= 5)
+    {
+        *out = 0;
+        return Error::Code::INDEX_OUT_OF_RANGE;
+    }
+
+    const auto bar_upper = read_config_register(device, addr + 4);
+    *out = bar | (static_cast<uint64_t>(bar_upper) << 32);
+    return Error::Code::SUCCESS;
+}
 }

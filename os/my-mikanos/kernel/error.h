@@ -11,6 +11,7 @@ public:
         SUCCESS,
         FULL,
         EMPTY,
+        INDEX_OUT_OF_RANGE,
         LAST_OF_CODE
     };
 
@@ -27,10 +28,11 @@ public:
     }
 
 private:
-    static constexpr std::array<const char *, 3> m_codeNames = {
+    static constexpr std::array<const char *, 4> m_codeNames = {
         "SUCCESS",
         "FULL",
-        "EMPTY"
+        "EMPTY",
+        "INDEX_OUT_OF_RANGE"
     };
     Code m_code;
 };
