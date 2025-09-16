@@ -24,8 +24,7 @@ union HCSPARAMS1_Bitmap
         uint32_t max_ports : 8;
     } __attribute__((packed)
 
-    )
-    bits;
+        ) bits;
 } __attribute__((packed));
 
 union HCSPARAMS2_Bitmap
@@ -42,8 +41,7 @@ union HCSPARAMS2_Bitmap
         uint32_t max_scratchpad_buffers_low : 5;
     } __attribute__((packed)
 
-    )
-    bits;
+        ) bits;
 } __attribute__((packed));
 
 union HCSPARAMS3_Bitmap
@@ -57,8 +55,7 @@ union HCSPARAMS3_Bitmap
         uint32_t u2_device_eixt_latency : 16;
     } __attribute__((packed)
 
-    )
-    bits;
+        ) bits;
 } __attribute__((packed));
 
 union HCCPARAMS1_Bitmap
@@ -83,8 +80,7 @@ union HCCPARAMS1_Bitmap
         uint32_t xhci_extended_capabilities_pointer : 16;
     } __attribute__((packed)
 
-    )
-    bits;
+        ) bits;
 } __attribute__((packed));
 
 union DBOFF_Bitmap
@@ -97,8 +93,7 @@ union DBOFF_Bitmap
         uint32_t doorbell_array_offset : 30;
     } __attribute__((packed)
 
-    )
-    bits;
+        ) bits;
 
     uint32_t Offset() const
     {
@@ -116,8 +111,7 @@ union RTSOFF_Bitmap
         uint32_t runtime_register_space_offset : 27;
     } __attribute__((packed)
 
-    )
-    bits;
+        ) bits;
 
     uint32_t Offset() const
     {
@@ -140,8 +134,7 @@ union HCCPARAMS2_Bitmap
         uint32_t  : 26;
     } __attribute__((packed)
 
-    )
-    bits;
+        ) bits;
 } __attribute__((packed));
 
 struct CapabilityRegisters
@@ -179,8 +172,7 @@ union USBCMD_Bitmap
         uint32_t  : 18;
     } __attribute__((packed)
 
-    )
-    bits;
+        ) bits;
 } __attribute__((packed));
 
 union USBSTS_Bitmap
@@ -203,8 +195,7 @@ union USBSTS_Bitmap
         uint32_t  : 19;
     } __attribute__((packed)
 
-    )
-    bits;
+        ) bits;
 } __attribute__((packed));
 
 union CRCR_Bitmap
@@ -221,8 +212,7 @@ union CRCR_Bitmap
         uint64_t command_ring_pointer : 58;
     } __attribute__((packed)
 
-    )
-    bits;
+        ) bits;
 
     uint64_t Pointer() const
     {
@@ -245,8 +235,7 @@ union DCBAAP_Bitmap
         uint64_t device_context_base_address_array_pointer : 26;
     } __attribute__((packed)
 
-    )
-    bits;
+        ) bits;
 
     uint64_t Pointer() const
     {
@@ -271,8 +260,7 @@ union CONFIG_Bitmap
         uint32_t  : 22;
     } __attribute__((packed)
 
-    )
-    bits;
+        ) bits;
 } __attribute__((packed));
 
 struct OperationalRegisters
@@ -320,8 +308,7 @@ union PORTSC_Bitmap
         uint32_t warm_port_reset : 1;
     } __attribute__((packed)
 
-    )
-    bits;
+        ) bits;
 } __attribute__((packed));
 
 union PORTPMSC_Bitmap
@@ -337,8 +324,7 @@ union PORTPMSC_Bitmap
         uint32_t  : 15;
     } __attribute__((packed)
 
-    )
-    bits_usb3;
+        ) bits_usb3;
 } __attribute__((packed));
 
 union PORTLI_Bitmap
@@ -354,8 +340,7 @@ union PORTLI_Bitmap
         uint32_t  : 8;
     } __attribute__((packed)
 
-    )
-    bits_usb3;
+        ) bits_usb3;
 } __attribute__((packed));
 
 union PORTHLPMC_Bitmap
@@ -371,8 +356,7 @@ union PORTHLPMC_Bitmap
         uint32_t  : 18;
     } __attribute__((packed)
 
-    )
-    bits_usb2;
+        ) bits_usb2;
 } __attribute__((packed));
 
 struct PortRegisterSet
@@ -396,8 +380,7 @@ union IMAN_Bitmap
         uint32_t  : 30;
     } __attribute__((packed)
 
-    )
-    bits;
+        ) bits;
 } __attribute__((packed));
 
 union IMOD_Bitmap
@@ -410,8 +393,7 @@ union IMOD_Bitmap
         uint32_t interrupt_moderation_counter : 16;
     } __attribute__((packed)
 
-    )
-    bits;
+        ) bits;
 } __attribute__((packed));
 
 union ERSTSZ_Bitmap
@@ -424,8 +406,7 @@ union ERSTSZ_Bitmap
         uint32_t  : 16;
     } __attribute__((packed)
 
-    )
-    bits;
+        ) bits;
 
     uint16_t Size() const
     {
@@ -448,8 +429,7 @@ union ERSTBA_Bitmap
         uint64_t event_ring_segment_table_base_address : 58;
     } __attribute__((packed)
 
-    )
-    bits;
+        ) bits;
 
     uint64_t Pointer() const
     {
@@ -473,8 +453,7 @@ union ERDP_Bitmap
         uint64_t event_ring_dequeue_pointer : 60;
     } __attribute__((packed)
 
-    )
-    bits;
+        ) bits;
 
     uint64_t Pointer() const
     {
@@ -510,8 +489,7 @@ union Doorbell_Bitmap
         uint32_t db_stream_id : 16;
     } __attribute__((packed)
 
-    )
-    bits;
+        ) bits;
 } __attribute__((packed));
 
 class DoorbellRegister
@@ -542,8 +520,7 @@ union ExtendedRegister_Bitmap
         uint32_t value : 16;
     } __attribute__((packed)
 
-    )
-    bits;
+        ) bits;
 } __attribute__((packed));
 
 class ExtendedRegisterList
@@ -615,7 +592,6 @@ union USBLEGSUP_Bitmap
         uint32_t  : 7;
     } __attribute__((packed)
 
-    )
-    bits;
+        ) bits;
 } __attribute__((packed));
 }

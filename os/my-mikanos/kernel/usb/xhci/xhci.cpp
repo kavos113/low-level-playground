@@ -306,7 +306,8 @@ Error OnEvent(Controller& xhc, CommandCompletionEventTRB& trb)
             if (port_config_phase[i] == ConfigPhase::kWaitingAddressed)
             {
                 auto port = xhc.PortAt(i);
-                if (auto err = ResetPort(xhc, port); err)
+                if (auto err = ResetPort(xhc, port); err
+                )
                 {
                     return err;
                 }

@@ -41,7 +41,7 @@ void HIDKeyboardDriver::operator delete(void* ptr) noexcept
 }
 
 void HIDKeyboardDriver::SubscribeKeyPush(
-    std::function < void(uint8_t keycode) > observer
+    std::function<void(uint8_t keycode)> observer
 )
 {
     observers_[num_observers_++] = observer;

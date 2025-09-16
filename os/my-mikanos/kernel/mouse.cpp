@@ -2,7 +2,6 @@
 
 namespace
 {
-
 constexpr int kMouseCursorWidth = 15;
 constexpr int kMouseCursorHeight = 24;
 constexpr char mouse_cursor_shape[kMouseCursorHeight][kMouseCursorWidth + 1] = {
@@ -32,7 +31,7 @@ constexpr char mouse_cursor_shape[kMouseCursorHeight][kMouseCursorWidth + 1] = {
     "         @@@   ",
 };
 
-void draw_mouse_cursor(PixelWriter *pixel_writer, Vector2D<int> position)
+void draw_mouse_cursor(PixelWriter* pixel_writer, Vector2D<int> position)
 {
     for (int y = 0; y < kMouseCursorHeight; ++y)
     {
@@ -48,10 +47,9 @@ void draw_mouse_cursor(PixelWriter *pixel_writer, Vector2D<int> position)
             }
         }
     }
-
 }
 
-void erase_mouse_cursor(PixelWriter *pixel_writer, Vector2D<int> position, PixelColor erase_color)
+void erase_mouse_cursor(PixelWriter* pixel_writer, Vector2D<int> position, PixelColor erase_color)
 {
     for (int y = 0; y < kMouseCursorHeight; ++y)
     {
@@ -64,7 +62,6 @@ void erase_mouse_cursor(PixelWriter *pixel_writer, Vector2D<int> position, Pixel
         }
     }
 }
-
 }
 
 MouseCursor::MouseCursor(PixelWriter* writer, PixelColor erase_color, Vector2D<int> init_position)

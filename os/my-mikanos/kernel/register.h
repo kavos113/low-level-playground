@@ -5,7 +5,9 @@
 #include <cstddef>
 
 template <typename T>
-struct ArrayLength {};
+struct ArrayLength
+{
+};
 
 template <typename T, size_t N>
 struct ArrayLength<T[N]>

@@ -32,7 +32,7 @@ void HIDMouseDriver::operator delete(void* ptr) noexcept
 }
 
 void HIDMouseDriver::SubscribeMouseMove(
-    std::function < void(int8_t displacement_x, int8_t displacement_y) > observer
+    std::function<void(int8_t displacement_x, int8_t displacement_y)> observer
 )
 {
     observers_[num_observers_++] = observer;

@@ -77,8 +77,8 @@ private:
     }
 };
 
-Error ConfigurePort(Controller & xhc, Port & port);
-Error ConfigureEndpoints(Controller & xhc, Device & dev);
+Error ConfigurePort(Controller& xhc, Port& port);
+Error ConfigureEndpoints(Controller& xhc, Device& dev);
 
 /** @brief イベントリングに登録されたイベントを高々1つ処理する．
    *

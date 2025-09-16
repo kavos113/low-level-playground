@@ -6,11 +6,11 @@
 class MouseCursor
 {
 public:
-    MouseCursor(PixelWriter *writer, PixelColor erase_color, Vector2D<int> init_position);
+    MouseCursor(PixelWriter* writer, PixelColor erase_color, Vector2D<int> init_position);
     void move_relative(Vector2D<int> displacement);
 
 private:
-    PixelWriter *m_pixelWriter = nullptr;
+    PixelWriter* m_pixelWriter = nullptr;
     PixelColor m_eraseColor;
     Vector2D<int> m_positon;
 };

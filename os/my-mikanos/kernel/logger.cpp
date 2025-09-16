@@ -11,7 +11,7 @@ namespace
 LogLevel current_log_level = LogLevel::INFO;
 }
 
-extern Console *console;
+extern Console* console;
 
 void SetLogLevel(LogLevel level)
 {

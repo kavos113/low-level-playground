@@ -90,8 +90,10 @@ extern "C" void KernelMain(const FrameBufferConfig* config)
         auto vendor_id = pci::read_vendor_id(device.bus, device.device, device.function);
         auto class_code = pci::read_class_code(device.bus, device.device, device.function);
 
-        Log(LogLevel::DEBUG, "%d.%d.%d: vendor %04x, class %08x, head %02x\n",
-            device.bus, device.device, device.function, vendor_id, class_code, device.header_type);
+        Log(
+            LogLevel::DEBUG, "%d.%d.%d: vendor %04x, class %08x, head %02x\n",
+            device.bus, device.device, device.function, vendor_id, class_code, device.header_type
+        );
     }
 
     pci::Device* xhc_dev = nullptr;
