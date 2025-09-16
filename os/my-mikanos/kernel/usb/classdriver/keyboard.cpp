@@ -27,7 +27,7 @@ Error HIDKeyboardDriver::OnDataReceived()
         }
         NotifyKeyPush(key);
     }
-    return MAKE_ERROR(Error::kSuccess);
+    return Error::Code::SUCCESS;
 }
 
 void* HIDKeyboardDriver::operator new(size_t size)

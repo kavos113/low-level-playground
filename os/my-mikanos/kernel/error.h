@@ -12,6 +12,21 @@ public:
         FULL,
         EMPTY,
         INDEX_OUT_OF_RANGE,
+        HOST_CONTROLLER_NOT_HALTED,
+        INVALID_SLOT_ID,
+        PORT_NOT_CONNECTED,
+        INVALID_ENDPOINT_NUMBER,
+        TRANSFER_RING_NOT_SET,
+        ALREADY_ALLOCATED,
+        NOT_IMPLEMENTED,
+        INVALID_DESCRIPTOR,
+        BUFFER_TOO_SMALL,
+        UNKNOWN_DEVICE,
+        NO_CORRESPONDING_SETUP_STAGE,
+        TRANSFER_FAILED,
+        INVALID_PHASE,
+        UNKNOWN_XHCI_SPEED_ID,
+        NO_WAITER,
         LAST_OF_CODE
     };
 
@@ -30,11 +45,26 @@ public:
     }
 
 private:
-    static constexpr std::array<const char*, 4> m_codeNames = {
+    static constexpr std::array<const char*, 19> m_codeNames = {
         "SUCCESS",
         "FULL",
         "EMPTY",
-        "INDEX_OUT_OF_RANGE"
+        "INDEX_OUT_OF_RANGE",
+        "HOST_CONTROLLER_NOT_HALTED",
+        "INVALID_SLOT_ID",
+        "PORT_NOT_CONNECTED",
+        "INVALID_ENDPOINT_NUMBER",
+        "TRANSFER_RING_NOT_SET",
+        "ALREADY_ALLOCATED",
+        "NOT_IMPLEMENTED",
+        "INVALID_DESCRIPTOR",
+        "BUFFER_TOO_SMALL",
+        "UNKNOWN_DEVICE",
+        "NO_CORRESPONDING_SETUP_STAGE",
+        "TRANSFER_FAILED",
+        "INVALID_PHASE",
+        "UNKNOWN_XHCI_SPEED_ID",
+        "NO_WAITER"
     };
     Code m_code;
 };

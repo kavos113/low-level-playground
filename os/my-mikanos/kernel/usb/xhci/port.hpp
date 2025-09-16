@@ -7,7 +7,7 @@
 #pragma once
 
 #include <cstdint>
-#include "error.hpp"
+#include "error.h"
 
 #include "usb/xhci/registers.hpp"
 

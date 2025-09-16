@@ -3,7 +3,7 @@
 #include <algorithm>
 #include "usb/memory.hpp"
 #include "usb/device.hpp"
-#include "logger.hpp"
+#include "logger.h"
 
 namespace usb
 {
@@ -17,8 +17,8 @@ Error HIDMouseDriver::OnDataReceived()
     int8_t displacement_x = Buffer()[1];
     int8_t displacement_y = Buffer()[2];
     NotifyMouseMove(displacement_x, displacement_y);
-    Log(kDebug, "%02x,(%3d,%3d)\n", Buffer()[0], displacement_x, displacement_y);
-    return MAKE_ERROR(Error::kSuccess);
+    Log(LogLevel::DEBUG, "%02x,(%3d,%3d)\n", Buffer()[0], displacement_x, displacement_y);
+    return Error::Code::SUCCESS;
 }
 
 void* HIDMouseDriver::operator new(size_t size)

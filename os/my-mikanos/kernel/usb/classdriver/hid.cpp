@@ -2,7 +2,7 @@
 
 #include <algorithm>
 #include "usb/device.hpp"
-#include "logger.hpp"
+#include "logger.h"
 
 namespace usb
 {
@@ -17,7 +17,7 @@ HIDBaseDriver::HIDBaseDriver(
 
 Error HIDBaseDriver::Initialize()
 {
-    return MAKE_ERROR(Error::kNotImplemented);
+    return Error::Code::NOT_IMPLEMENTED;
 }
 
 Error HIDBaseDriver::SetEndpoint(const EndpointConfig& config)
@@ -30,7 +30,7 @@ Error HIDBaseDriver::SetEndpoint(const EndpointConfig& config)
     {
         ep_interrupt_out_ = config.ep_id;
     }
-    return MAKE_ERROR(Error::kSuccess);
+    return Error::Code::SUCCESS;
 }
 
 Error HIDBaseDriver::OnEndpointsConfigured()
@@ -54,7 +54,7 @@ Error HIDBaseDriver::OnControlCompleted(
 )
 {
     Log(
-        kDebug, "HIDBaseDriver::OnControlCompleted: dev %08x, phase = %d, len = %d\n",
+        LogLevel::DEBUG, "HIDBaseDriver::OnControlCompleted: dev %08x, phase = %d, len = %d\n",
         this, initialize_phase_, len
     );
     if (initialize_phase_ == 1)
@@ -63,7 +63,7 @@ Error HIDBaseDriver::OnControlCompleted(
         return ParentDevice()->InterruptIn(ep_interrupt_in_, buf_.data(), in_packet_size_);
     }
 
-    return MAKE_ERROR(Error::kNotImplemented);
+    return Error::Code::NOT_IMPLEMENTED;
 }
 
 Error HIDBaseDriver::OnInterruptCompleted(EndpointID ep_id, const void* buf, int len)
@@ -75,6 +75,6 @@ Error HIDBaseDriver::OnInterruptCompleted(EndpointID ep_id, const void* buf, int
         return ParentDevice()->InterruptIn(ep_interrupt_in_, buf_.data(), in_packet_size_);
     }
 
-    return MAKE_ERROR(Error::kNotImplemented);
+    return Error::Code::NOT_IMPLEMENTED;
 }
 }

@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "error.hpp"
+#include "error.h"
 
 namespace usb
 {

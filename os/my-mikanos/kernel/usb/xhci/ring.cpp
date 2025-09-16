@@ -26,11 +26,11 @@ Error Ring::Initialize(size_t buf_size)
     buf_ = AllocArray<TRB>(buf_size_, 64, 64 * 1024);
     if (buf_ == nullptr)
     {
-        return MAKE_ERROR(Error::kNoEnoughMemory);
+        return Error::Code::NO_ENOUGH_MEMORY;
     }
     memset(buf_, 0, buf_size_ * sizeof(TRB));
 
-    return MAKE_ERROR(Error::kSuccess);
+    return Error::Code::SUCCESS;
 }
 
 void Ring::CopyToLast(const std::array<uint32_t, 4>& data)
@@ -80,7 +80,7 @@ Error EventRing::Initialize(
     buf_ = AllocArray<TRB>(buf_size_, 64, 64 * 1024);
     if (buf_ == nullptr)
     {
-        return MAKE_ERROR(Error::kNoEnoughMemory);
+        return Error::Code::NO_ENOUGH_MEMORY;
     }
     memset(buf_, 0, buf_size_ * sizeof(TRB));
 
@@ -88,7 +88,7 @@ Error EventRing::Initialize(
     if (erst_ == nullptr)
     {
         FreeMem(buf_);
-        return MAKE_ERROR(Error::kNoEnoughMemory);
+        return Error::Code::NO_ENOUGH_MEMORY;
     }
     memset(erst_, 0, 1 * sizeof(EventRingSegmentTableEntry));
 
@@ -105,7 +105,7 @@ Error EventRing::Initialize(
     erstba.SetPointer(reinterpret_cast<uint64_t>(erst_));
     interrupter_->ERSTBA.Write(erstba);
 
-    return MAKE_ERROR(Error::kSuccess);
+    return Error::Code::SUCCESS;
 }
 
 void EventRing::WriteDequeuePointer(TRB* p)

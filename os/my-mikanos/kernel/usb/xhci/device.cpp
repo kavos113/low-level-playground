@@ -1,6 +1,6 @@
 #include "usb/xhci/device.hpp"
 
-#include "logger.hpp"
+#include "logger.h"
 #include "usb/memory.hpp"
 #include "usb/xhci/ring.hpp"
 
@@ -109,7 +109,7 @@ Error Device::Initialize()
         const DeviceContextIndex dci(i + 1);
         //on_transferred_callbacks_[i] = nullptr;
     }
-    return MAKE_ERROR(Error::kSuccess);
+    return Error::Code::SUCCESS;
 }
 
 void Device::SelectForSlotAssignment()
@@ -140,12 +140,12 @@ Error Device::ControlIn(
     }
 
     Log(
-        kDebug, "Device::ControlIn: ep addr %d, buf 0x%08x, len %d\n",
+        LogLevel::DEBUG, "Device::ControlIn: ep addr %d, buf 0x%08x, len %d\n",
         ep_id.Address(), buf, len
     );
     if (ep_id.Number() < 0 || 15 < ep_id.Number())
     {
-        return MAKE_ERROR(Error::kInvalidEndpointNumber);
+        return Error::Code::INVALID_ENDPOINT_NUMBER;
     }
 
     // control endpoint must be dir_in=true
@@ -155,7 +155,7 @@ Error Device::ControlIn(
 
     if (tr == nullptr)
     {
-        return MAKE_ERROR(Error::kTransferRingNotSet);
+        return Error::Code::TRANSFER_RING_NOT_SET;
     }
 
     auto status = StatusStageTRB{};
@@ -190,7 +190,7 @@ Error Device::ControlIn(
 
     dbreg_->Ring(dci.value);
 
-    return MAKE_ERROR(Error::kSuccess);
+    return Error::Code::SUCCESS;
 }
 
 Error Device::ControlOut(
@@ -204,12 +204,12 @@ Error Device::ControlOut(
     }
 
     Log(
-        kDebug, "Device::ControlOut: ep addr %d, buf 0x%08x, len %d\n",
+        LogLevel::DEBUG, "Device::ControlOut: ep addr %d, buf 0x%08x, len %d\n",
         ep_id.Address(), buf, len
     );
     if (ep_id.Number() < 0 || 15 < ep_id.Number())
     {
-        return MAKE_ERROR(Error::kInvalidEndpointNumber);
+        return Error::Code::INVALID_ENDPOINT_NUMBER;
     }
 
     // control endpoint must be dir_in=true
@@ -219,7 +219,7 @@ Error Device::ControlOut(
 
     if (tr == nullptr)
     {
-        return MAKE_ERROR(Error::kTransferRingNotSet);
+        return Error::Code::TRANSFER_RING_NOT_SET;
     }
 
     auto status = StatusStageTRB{};
@@ -254,7 +254,7 @@ Error Device::ControlOut(
 
     dbreg_->Ring(dci.value);
 
-    return MAKE_ERROR(Error::kSuccess);
+    return Error::Code::SUCCESS;
 }
 
 Error Device::InterruptIn(EndpointID ep_id, void* buf, int len)
@@ -270,7 +270,7 @@ Error Device::InterruptIn(EndpointID ep_id, void* buf, int len)
 
     if (tr == nullptr)
     {
-        return MAKE_ERROR(Error::kTransferRingNotSet);
+        return Error::Code::TRANSFER_RING_NOT_SET;
     }
 
     NormalTRB normal{};
@@ -281,7 +281,7 @@ Error Device::InterruptIn(EndpointID ep_id, void* buf, int len)
 
     tr->Push(normal);
     dbreg_->Ring(dci.value);
-    return MAKE_ERROR(Error::kSuccess);
+    return Error::Code::SUCCESS;
 }
 
 Error Device::InterruptOut(EndpointID ep_id, void* buf, int len)
@@ -292,10 +292,10 @@ Error Device::InterruptOut(EndpointID ep_id, void* buf, int len)
     }
 
     Log(
-        kDebug, "Device::InterrutpOut: ep addr %d, buf %08lx, len %d, dev %08lx\n",
+        LogLevel::DEBUG, "Device::InterrutpOut: ep addr %d, buf %08lx, len %d, dev %08lx\n",
         ep_id.Address(), buf, len, this
     );
-    return MAKE_ERROR(Error::kNotImplemented);
+    return Error::Code::NOT_IMPLEMENTED;
 }
 
 Error Device::OnTransferEventReceived(const TransferEventTRB& trb)
@@ -305,10 +305,10 @@ Error Device::OnTransferEventReceived(const TransferEventTRB& trb)
     if (trb.bits.completion_code != 1 /* Success */ &&
         trb.bits.completion_code != 13 /* Short Packet */)
     {
-        Log(kDebug, trb);
-        return MAKE_ERROR(Error::kTransferFailed);
+        Log(LogLevel::DEBUG, trb);
+        return Error::Code::TRANSFER_FAILED;
     }
-    Log(kDebug, trb);
+    Log(LogLevel::DEBUG, trb);
 
     TRB* issuer_trb = trb.Pointer();
     if (auto normal_trb = TRBDynamicCast<NormalTRB>(issuer_trb))
@@ -324,14 +324,14 @@ Error Device::OnTransferEventReceived(const TransferEventTRB& trb)
     if (!opt_setup_stage_trb)
     {
         Log(
-            kDebug, "No Corresponding Setup Stage for issuer %s\n",
+            LogLevel::DEBUG, "No Corresponding Setup Stage for issuer %s\n",
             kTRBTypeToName[issuer_trb->bits.trb_type]
         );
         if (auto data_trb = TRBDynamicCast<DataStageTRB>(issuer_trb))
         {
-            Log(kDebug, *data_trb);
+            Log(LogLevel::DEBUG, *data_trb);
         }
-        return MAKE_ERROR(Error::kNoCorrespondingSetupStage);
+        return Error::Code::NO_CORRESPONDING_SETUP_STAGE;
     }
     setup_stage_map_.Delete(issuer_trb);
 
@@ -357,7 +357,7 @@ Error Device::OnTransferEventReceived(const TransferEventTRB& trb)
     }
     else
     {
-        return MAKE_ERROR(Error::kNotImplemented);
+        return Error::Code::NOT_IMPLEMENTED;
     }
     return this->OnControlCompleted(
         trb.EndpointID(), setup_data, data_stage_buffer, transfer_length

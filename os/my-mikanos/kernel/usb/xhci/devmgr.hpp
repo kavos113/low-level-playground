@@ -9,7 +9,7 @@
 #include <cstddef>
 #include <cstdint>
 
-#include "error.hpp"
+#include "error.h"
 #include "usb/xhci/context.hpp"
 #include "usb/xhci/device.hpp"
 

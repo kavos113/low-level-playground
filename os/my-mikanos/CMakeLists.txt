@@ -50,9 +50,12 @@ add_executable(my_mikanos
         kernel/usb/xhci/xhci.hpp
         kernel/mouse.cpp
         kernel/mouse.h
+        kernel/logger.cpp
+        kernel/logger.h
 )
 
 target_include_directories(my_mikanos PRIVATE
         $ENV{HOME}/edk2/MdePkg/Include
         $ENV{HOME}/edk2/MdePkg/Include/X64
+        kernel
 )

@@ -6,7 +6,7 @@
 #include "usb/classdriver/keyboard.hpp"
 #include "usb/classdriver/mouse.hpp"
 
-#include "logger.hpp"
+#include "logger.h"
 
 namespace
 {
@@ -146,7 +146,7 @@ Error Device::ControlIn(
     {
         event_waiters_.Put(setup_data, issuer);
     }
-    return MAKE_ERROR(Error::kSuccess);
+    return Error::Code::SUCCESS;
 }
 
 Error Device::ControlOut(
@@ -158,17 +158,17 @@ Error Device::ControlOut(
     {
         event_waiters_.Put(setup_data, issuer);
     }
-    return MAKE_ERROR(Error::kSuccess);
+    return Error::Code::SUCCESS;
 }
 
 Error Device::InterruptIn(EndpointID ep_id, void* buf, int len)
 {
-    return MAKE_ERROR(Error::kSuccess);
+    return Error::Code::SUCCESS;
 }
 
 Error Device::InterruptOut(EndpointID ep_id, void* buf, int len)
 {
-    return MAKE_ERROR(Error::kSuccess);
+    return Error::Code::SUCCESS;
 }
 
 Error Device::StartInitialize()
@@ -193,7 +193,7 @@ Error Device::OnEndpointsConfigured()
             }
         }
     }
-    return MAKE_ERROR(Error::kSuccess);
+    return Error::Code::SUCCESS;
 }
 
 Error Device::OnControlCompleted(
@@ -202,7 +202,7 @@ Error Device::OnControlCompleted(
 )
 {
     Log(
-        kDebug, "Device::OnControlCompleted: buf 0x%08x, len %d, dir %d\n",
+        LogLevel::DEBUG, "Device::OnControlCompleted: buf 0x%08x, len %d, dir %d\n",
         buf, len, setup_data.request_type.bits.direction
     );
     if (is_initialized_)
@@ -211,7 +211,7 @@ Error Device::OnControlCompleted(
         {
             return w.value()->OnControlCompleted(ep_id, setup_data, buf, len);
         }
-        return MAKE_ERROR(Error::kNoWaiter);
+        return Error::Code::NO_WAITER;
     }
 
     const uint8_t* buf8 = reinterpret_cast<const uint8_t*>(buf);
@@ -222,7 +222,7 @@ Error Device::OnControlCompleted(
         {
             return InitializePhase1(buf8, len);
         }
-        return MAKE_ERROR(Error::kInvalidPhase);
+        return Error::Code::INVALID_PHASE;
     }
     else if (initialize_phase_ == 2)
     {
@@ -231,7 +231,7 @@ Error Device::OnControlCompleted(
         {
             return InitializePhase2(buf8, len);
         }
-        return MAKE_ERROR(Error::kInvalidPhase);
+        return Error::Code::INVALID_PHASE;
     }
     else if (initialize_phase_ == 3)
     {
@@ -239,20 +239,20 @@ Error Device::OnControlCompleted(
         {
             return InitializePhase3(setup_data.value & 0xffu);
         }
-        return MAKE_ERROR(Error::kInvalidPhase);
+        return Error::Code::INVALID_PHASE;
     }
 
-    return MAKE_ERROR(Error::kNotImplemented);
+    return Error::Code::NOT_IMPLEMENTED;
 }
 
 Error Device::OnInterruptCompleted(EndpointID ep_id, const void* buf, int len)
 {
-    Log(kDebug, "Device::OnInterruptCompleted: ep addr %d\n", ep_id.Address());
+    Log(LogLevel::DEBUG, "Device::OnInterruptCompleted: ep addr %d\n", ep_id.Address());
     if (auto w = class_drivers_[ep_id.Number()])
     {
         return w->OnInterruptCompleted(ep_id, buf, len);
     }
-    return MAKE_ERROR(Error::kNoWaiter);
+    return Error::Code::NO_WAITER;
 }
 
 Error Device::InitializePhase1(const uint8_t* buf, int len)
@@ -261,7 +261,7 @@ Error Device::InitializePhase1(const uint8_t* buf, int len)
     num_configurations_ = device_desc->num_configurations;
     config_index_ = 0;
     initialize_phase_ = 2;
-    Log(kDebug, "issuing GetDesc(Config): index=%d)\n", config_index_);
+    Log(LogLevel::DEBUG, "issuing GetDesc(Config): index=%d)\n", config_index_);
     return GetDescriptor(
         *this, kDefaultControlPipeID,
         ConfigurationDescriptor::kType, config_index_,
@@ -274,14 +274,14 @@ Error Device::InitializePhase2(const uint8_t* buf, int len)
     auto conf_desc = DescriptorDynamicCast<ConfigurationDescriptor>(buf);
     if (conf_desc == nullptr)
     {
-        return MAKE_ERROR(Error::kInvalidDescriptor);
+        return Error::Code::INVALID_DESCRIPTOR;
     }
     ConfigurationDescriptorReader config_reader{buf, len};
 
     ClassDriver* class_driver = nullptr;
     while (auto if_desc = config_reader.Next<InterfaceDescriptor>())
     {
-        Log(kDebug, *if_desc);
+        Log(LogLevel::DEBUG, *if_desc);
 
         class_driver = NewClassDriver(this, *if_desc);
         if (class_driver == nullptr)
@@ -298,7 +298,7 @@ Error Device::InitializePhase2(const uint8_t* buf, int len)
             if (auto ep_desc = DescriptorDynamicCast<EndpointDescriptor>(desc))
             {
                 auto conf = MakeEPConfig(*ep_desc);
-                Log(kDebug, conf);
+                Log(LogLevel::DEBUG, conf);
 
                 ep_configs_[num_ep_configs_] = conf;
                 ++num_ep_configs_;
@@ -306,7 +306,7 @@ Error Device::InitializePhase2(const uint8_t* buf, int len)
             }
             else if (auto hid_desc = DescriptorDynamicCast<HIDDescriptor>(desc))
             {
-                Log(kDebug, *hid_desc);
+                Log(LogLevel::DEBUG, *hid_desc);
             }
         }
 
@@ -315,11 +315,11 @@ Error Device::InitializePhase2(const uint8_t* buf, int len)
 
     if (!class_driver)
     {
-        return MAKE_ERROR(Error::kSuccess);
+        return Error::Code::SUCCESS;
     }
     initialize_phase_ = 3;
     Log(
-        kDebug, "issuing SetConfiguration: conf_val=%d\n",
+        LogLevel::DEBUG, "issuing SetConfiguration: conf_val=%d\n",
         conf_desc->configuration_value
     );
     return SetConfiguration(
@@ -336,7 +336,7 @@ Error Device::InitializePhase3(uint8_t config_value)
     }
     initialize_phase_ = 4;
     is_initialized_ = true;
-    return MAKE_ERROR(Error::kSuccess);
+    return Error::Code::SUCCESS;
 }
 
 Error GetDescriptor(

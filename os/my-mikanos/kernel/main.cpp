@@ -4,11 +4,12 @@
 #include <cstdarg>
 
 #include "console.h"
-#include "font.h"
 #include "frame_buffer_config.h"
 #include "mouse.h"
 #include "pci.h"
 #include "pixel_writer.h"
+#include "logger.h"
+
 #include "usb/classdriver/mouse.hpp"
 #include "usb/xhci/xhci.hpp"
 
@@ -24,19 +25,6 @@ PixelWriter* pixel_writer;
 
 char console_buf[sizeof(Console)];
 Console* console;
-
-int printk(const char* format, ...)
-{
-    va_list ap;
-    char s[1024];
-
-    va_start(ap, format);
-    int result = vsprintf(s, format, ap);
-    va_end(ap);
-
-    console->put_string(s);
-    return result;
-}
 
 char mouse_cursor_buf[sizeof(MouseCursor)];
 MouseCursor* mouse_cursor;
@@ -92,12 +80,13 @@ extern "C" void KernelMain(const FrameBufferConfig* config)
     fill_rect(*pixel_writer, {0, frame_height - 50}, {frame_width, 50}, kWindowFgColor);
     fill_rect(*pixel_writer, {0, frame_height - 50}, {frame_width / 5, 50}, {155, 155, 155});
 
-    printk("Hello, OS!");
+    SetLogLevel(LogLevel::DEBUG);
+    Log(LogLevel::DEBUG, "Hello, OS!\n");
 
     mouse_cursor = new(mouse_cursor_buf) MouseCursor{pixel_writer, kWindowBgColor, {200, 200}};
 
     auto err = pci::scan_all_bus();
-    printk("scan_all_bus is finished with: %s\n", err.name());
+    Log(LogLevel::DEBUG, "scan_all_bus is finished with: %s\n", err.name());
 
     for (int i = 0; i < pci::num_device; ++i)
     {
@@ -106,10 +95,8 @@ extern "C" void KernelMain(const FrameBufferConfig* config)
         auto vendor_id = pci::read_vendor_id(device.bus, device.device, device.function);
         auto class_code = pci::read_class_code(device.bus, device.device, device.function);
 
-        printk(
-            "%d.%d.%d: vendor %04x, class %08x, head %02x\n",
-            device.bus, device.device, device.function, vendor_id, class_code, device.header_type
-        );
+        Log(LogLevel::DEBUG, "%d.%d.%d: vendor %04x, class %08x, head %02x\n",
+            device.bus, device.device, device.function, vendor_id, class_code, device.header_type);
     }
 
     pci::Device* xhc_dev = nullptr;
@@ -128,18 +115,18 @@ extern "C" void KernelMain(const FrameBufferConfig* config)
 
     if (xhc_dev)
     {
-        printk("xHC has been found: %d.%d.%d\n", xhc_dev->bus, xhc_dev->device, xhc_dev->function);
+        Log(LogLevel::DEBUG, "xHC has been found: %d.%d.%d\n", xhc_dev->bus, xhc_dev->device, xhc_dev->function);
     }
 
     uint64_t xhc_bar;
     err = pci::read_bar(*xhc_dev, 0, &xhc_bar);
     if (err)
     {
-        printk("read_bar: %s\n", err.name());
+        Log(LogLevel::ERROR, "failed to read xHC BAR: %s\n", err.name());
     }
 
     uint64_t xhc_mmio_base = xhc_bar & ~static_cast<uint64_t>(0xf);
-    printk("xHC mmio_base = %08lx\n", xhc_mmio_base);
+    Log(LogLevel::DEBUG, "xHC mmio_base = %08lx\n", xhc_mmio_base);
 
     usb::xhci::Controller xhc{xhc_mmio_base};
 
@@ -151,7 +138,7 @@ extern "C" void KernelMain(const FrameBufferConfig* config)
     err = xhc.Initialize();
     if (err)
     {
-        printk("failed to initialize xhc: %s\n", err.name());
+        Log(LogLevel::ERROR, "failed to initialize xHC: %s\n", err.name());
     }
 
     xhc.Run();
@@ -166,7 +153,7 @@ extern "C" void KernelMain(const FrameBufferConfig* config)
         {
             if ((err = usb::xhci::ConfigurePort(xhc, port)))
             {
-                printk("failed to configure port: %s\n", err.name());
+                Log(LogLevel::ERROR, "failed to configure port: %s\n", err.name());
                 continue;
             }
         }
@@ -177,7 +164,7 @@ extern "C" void KernelMain(const FrameBufferConfig* config)
         err = usb::xhci::ProcessEvent(xhc);
         if (err)
         {
-            printk("error while process event: %s\n", err.name());
+            Log(LogLevel::ERROR, "error while process event: %s\n", err.name());
         }
     }
 

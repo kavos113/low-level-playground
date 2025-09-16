@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "error.hpp"
+#include "error.h"
 #include "usb/endpoint.hpp"
 #include "usb/setupdata.hpp"
 

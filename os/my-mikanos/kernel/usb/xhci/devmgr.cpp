@@ -11,14 +11,14 @@ Error DeviceManager::Initialize(size_t max_slots)
     devices_ = AllocArray<Device*>(max_slots_ + 1, 0, 0);
     if (devices_ == nullptr)
     {
-        return MAKE_ERROR(Error::kNoEnoughMemory);
+        return Error::Code::NO_ENOUGH_MEMORY;
     }
 
     device_context_pointers_ = AllocArray<DeviceContext*>(max_slots_ + 1, 64, 4096);
     if (device_context_pointers_ == nullptr)
     {
         FreeMem(devices_);
-        return MAKE_ERROR(Error::kNoEnoughMemory);
+        return Error::Code::NO_ENOUGH_MEMORY;
     }
 
     for (size_t i = 0; i <= max_slots_; ++i)
@@ -27,7 +27,7 @@ Error DeviceManager::Initialize(size_t max_slots)
         device_context_pointers_[i] = nullptr;
     }
 
-    return MAKE_ERROR(Error::kSuccess);
+    return Error::Code::SUCCESS;
 }
 
 DeviceContext** DeviceManager::DeviceContexts() const
@@ -85,29 +85,29 @@ Error DeviceManager::AllocDevice(uint8_t slot_id, DoorbellRegister* dbreg)
 {
     if (slot_id > max_slots_)
     {
-        return MAKE_ERROR(Error::kInvalidSlotID);
+        return Error::Code::INVALID_SLOT_ID;
     }
 
     if (devices_[slot_id] != nullptr)
     {
-        return MAKE_ERROR(Error::kAlreadyAllocated);
+        return Error::Code::ALREADY_ALLOCATED;
     }
 
     devices_[slot_id] = AllocArray<Device>(1, 64, 4096);
     new(devices_[slot_id]) Device(slot_id, dbreg);
-    return MAKE_ERROR(Error::kSuccess);
+    return Error::Code::SUCCESS;
 }
 
 Error DeviceManager::LoadDCBAA(uint8_t slot_id)
 {
     if (slot_id > max_slots_)
     {
-        return MAKE_ERROR(Error::kInvalidSlotID);
+        return Error::Code::INVALID_SLOT_ID;
     }
 
     auto dev = devices_[slot_id];
     device_context_pointers_[slot_id] = dev->DeviceContext();
-    return MAKE_ERROR(Error::kSuccess);
+    return Error::Code::SUCCESS;
 }
 
 Error DeviceManager::Remove(uint8_t slot_id)
@@ -115,6 +115,6 @@ Error DeviceManager::Remove(uint8_t slot_id)
     device_context_pointers_[slot_id] = nullptr;
     FreeMem(devices_[slot_id]);
     devices_[slot_id] = nullptr;
-    return MAKE_ERROR(Error::kSuccess);
+    return Error::Code::SUCCESS;
 }
 }
