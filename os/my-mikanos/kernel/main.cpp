@@ -26,6 +26,7 @@ MouseCursor* mouse_cursor;
 
 void mouse_observer(int8_t displacement_x, int8_t displacement_y)
 {
+    Log(LogLevel::DEBUG, "mouse move: (%d, %d)\n", displacement_x, displacement_y);
     mouse_cursor->move_relative({displacement_x, displacement_y});
 }
 
@@ -96,6 +97,8 @@ extern "C" void KernelMain(const FrameBufferConfig* config)
         );
     }
 
+    SetLogLevel(LogLevel::WARN);
+
     pci::Device* xhc_dev = nullptr;
     for (int i = 0; i < pci::num_device; ++i)
     {
@@ -112,7 +115,7 @@ extern "C" void KernelMain(const FrameBufferConfig* config)
 
     if (xhc_dev)
     {
-        Log(LogLevel::DEBUG, "xHC has been found: %d.%d.%d\n", xhc_dev->bus, xhc_dev->device, xhc_dev->function);
+        Log(LogLevel::WARN, "xHC has been found: %d.%d.%d\n", xhc_dev->bus, xhc_dev->device, xhc_dev->function);
     }
 
     uint64_t xhc_bar;
@@ -123,7 +126,7 @@ extern "C" void KernelMain(const FrameBufferConfig* config)
     }
 
     uint64_t xhc_mmio_base = xhc_bar & ~static_cast<uint64_t>(0xf);
-    Log(LogLevel::DEBUG, "xHC mmio_base = %08lx\n", xhc_mmio_base);
+    Log(LogLevel::WARN, "xHC mmio_base = %08lx\n", xhc_mmio_base);
 
     usb::xhci::Controller xhc{xhc_mmio_base};
 
@@ -161,7 +164,7 @@ extern "C" void KernelMain(const FrameBufferConfig* config)
         err = usb::xhci::ProcessEvent(xhc);
         if (err)
         {
-            Log(LogLevel::ERROR, "error while process event: %s\n", err.name());
+            Log(LogLevel::ERROR, "error while process event: %s, %d at %s\n", err.name(), err.line(), err.file());
         }
     }
 

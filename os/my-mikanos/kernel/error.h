@@ -31,7 +31,7 @@ public:
         LAST_OF_CODE
     };
 
-    Error(Code code) : m_code(code)
+    Error(Code code) : m_code(code), m_line(__LINE__), m_file(__FILE__)
     {
     }
 
@@ -43,6 +43,16 @@ public:
     const char* name() const
     {
         return m_codeNames[static_cast<int>(this->m_code)];
+    }
+
+    const char* file() const
+    {
+        return m_file;
+    }
+
+    int line() const
+    {
+        return m_line;
     }
 
 private:
@@ -69,6 +79,8 @@ private:
         "NO_WAITER"
     };
     Code m_code;
+    int m_line;
+    const char *m_file;
 };
 
 #endif //KERNEL_ERROR_H

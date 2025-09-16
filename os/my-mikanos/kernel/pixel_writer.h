@@ -51,7 +51,9 @@ struct Vector2D
 
     Vector2D operator+=(const Vector2D& vec)
     {
-        return {x + vec.x, y + vec.y};
+        x += vec.x;
+        y += vec.y;
+        return *this;
     }
 };
 

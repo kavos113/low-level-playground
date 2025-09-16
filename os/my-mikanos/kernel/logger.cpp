@@ -8,7 +8,7 @@
 
 namespace
 {
-LogLevel current_log_level = LogLevel::INFO;
+LogLevel current_log_level = LogLevel::ERROR;
 }
 
 extern Console* console;

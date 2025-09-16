@@ -8,6 +8,7 @@ fi
 DISK_IMG="disk.img"
 EFI_FILE=$1
 MNT_FILE=$2
+DEVENV_DIR=$HOME/osbook/devenv
 
 rm -f "$DISK_IMG"
 qemu-img create -f raw "$DISK_IMG" 200M
@@ -23,7 +24,11 @@ fi
 sudo umount mnt
 
 qemu-system-x86_64 \
-    -drive if=pflash,file=$HOME/osbook/devenv/OVMF_CODE.fd \
-    -drive if=pflash,file=$HOME/osbook/devenv/OVMF_VARS.fd \
+    -m 1G \
+    -drive if=pflash,format=raw,readonly,file=$DEVENV_DIR/OVMF_CODE.fd \
+    -drive if=pflash,format=raw,file=$DEVENV_DIR/OVMF_VARS.fd \
+    -drive if=ide,index=0,media=disk,format=raw,file=$DISK_IMG \
+    -device nec-usb-xhci,id=xhci \
+    -device usb-mouse -device usb-kbd \
     -monitor stdio \
-    -hda "$DISK_IMG"
+    $QEMU_OPTS
