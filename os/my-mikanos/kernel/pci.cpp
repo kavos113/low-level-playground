@@ -20,14 +20,14 @@ uint32_t make_config_address(uint8_t bus, uint8_t device, uint8_t function, uint
         | (reg_offset & 0xfcu); // force 0 in 2-low-bits
 }
 
-Error add_device(uint8_t bus, uint8_t device, uint8_t function, uint8_t header_type)
+Error add_device(const Device& device)
 {
     if (num_device == devices.size())
     {
         return Error::Code::FULL;
     }
 
-    devices[num_device] = Device{bus, device, function, header_type};
+    devices[num_device] = device;
     num_device++;
     return Error::Code::SUCCESS;
 }
@@ -36,17 +36,15 @@ Error scan_bus(uint8_t bus);
 
 Error scan_function(uint8_t bus, uint8_t device, uint8_t function)
 {
+    auto class_code = read_class_code(bus, device, function);
     auto header_type = read_header_type(bus, device, function);
-    if (auto err = add_device(bus, device, function, header_type))
+    Device dev{bus, device, function, header_type, class_code};
+    if (auto err = add_device(dev))
     {
         return err;
     }
 
-    auto class_code = read_class_code(bus, device, function);
-    uint8_t base_class = (class_code >> 24) & 0xffu;
-    uint8_t sub_class = (class_code >> 16) & 0xffu;
-
-    if (base_class == 0x06u && sub_class == 0x04u)
+    if (class_code.match(0x06u, 0x04u))
     {
         auto bus_numbers = read_bus_numbers(bus, device, function);
         uint8_t secondary_bus = (bus_numbers >> 8) & 0xffu;

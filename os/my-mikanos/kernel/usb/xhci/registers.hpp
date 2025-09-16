@@ -6,7 +6,9 @@
 
 #pragma once
 
-#include "register.hpp"
+#include "register.h"
+
+#include <cstdint>
 
 namespace usb::xhci
 {

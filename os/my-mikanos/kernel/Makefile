@@ -1,8 +1,8 @@
 TARGET = kernel.elf
-OBJS = main.o pixel_writer.o font.o console.o newlib_support.o io.o pci.o mouse.o \
+OBJS = main.o pixel_writer.o font.o console.o newlib_support.o io.o pci.o mouse.o logger.o libcxx_support.o \
 	usb/memory.o usb/device.o usb/xhci/device.o usb/xhci/devmgr.o usb/xhci/port.o \
 	usb/xhci/registers.o usb/xhci/ring.o usb/xhci/trb.o usb/xhci/xhci.o \
-	usb/classdriver/base.o usb/classdriver/hid.o usb/classdriver/kerboard.o usb/classdriver/mouse.o
+	usb/classdriver/base.o usb/classdriver/hid.o usb/classdriver/keyboard.o usb/classdriver/mouse.o
 MORE_OBJS = hankaku.o
 
 CFLAGS += -O2 -Wall -g --target=x86_64-elf -ffreestanding -mno-red-zone
@@ -33,7 +33,7 @@ clean:
 	rm -f $(TARGET) $(OBJS)
 
 $(TARGET): $(OBJS) Makefile
-	$(LD) $(LDFLAGS) -o $@ $(OBJS) $(MORE_OBJS) -lc
+	$(LD) $(LDFLAGS) -o $@ $(OBJS) $(MORE_OBJS) -lc -lc++
 
 %.o: %.cpp Makefile
 	$(CXX) $(CXXFLAGS) -c $< -o $@

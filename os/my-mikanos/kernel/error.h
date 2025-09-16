@@ -11,6 +11,7 @@ public:
         SUCCESS,
         FULL,
         EMPTY,
+        NO_ENOUGH_MEMORY,
         INDEX_OUT_OF_RANGE,
         HOST_CONTROLLER_NOT_HALTED,
         INVALID_SLOT_ID,
@@ -45,10 +46,11 @@ public:
     }
 
 private:
-    static constexpr std::array<const char*, 19> m_codeNames = {
+    static constexpr std::array<const char*, 20> m_codeNames = {
         "SUCCESS",
         "FULL",
         "EMPTY",
+        "NO_ENOUGH_MEMORY",
         "INDEX_OUT_OF_RANGE",
         "HOST_CONTROLLER_NOT_HALTED",
         "INVALID_SLOT_ID",

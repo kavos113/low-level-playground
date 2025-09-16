@@ -52,6 +52,8 @@ add_executable(my_mikanos
         kernel/mouse.h
         kernel/logger.cpp
         kernel/logger.h
+        kernel/register.h
+        kernel/libcxx_support.cpp
 )
 
 target_include_directories(my_mikanos PRIVATE

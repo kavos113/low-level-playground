@@ -1,14 +1,9 @@
-#include <cstdint>
-#include <cstddef>
-#include <cstdio>
-#include <cstdarg>
-
 #include "console.h"
 #include "frame_buffer_config.h"
+#include "logger.h"
 #include "mouse.h"
 #include "pci.h"
 #include "pixel_writer.h"
-#include "logger.h"
 
 #include "usb/classdriver/mouse.hpp"
 #include "usb/xhci/xhci.hpp"
